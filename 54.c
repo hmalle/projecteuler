@@ -78,6 +78,24 @@ short max_suits(char* suits){
   return 0;
 }
 
+short greater_card(char one, char two){
+  char deck[] = "23456789TJQKA";
+  if(one == '0' && two =='0') return 0;
+  else if(one != '0' && two =='0') return 1;
+  else if(one == '0' && two !='0') return -1;
+  for(short a=strlen(deck)-1;a>=0;a--){
+    if(deck[a]== one && deck[a]== two){
+      return 0;
+    }else if(deck[a] == one){
+      return 1;
+    }else{
+      return -1;
+    }
+  }
+  return 0;
+}
+
+
 char high_value(char * values){
   char deck[] = "23456789TJQKA";
   char result = deck[0];
@@ -92,8 +110,10 @@ char high_value(char * values){
 }
 
 char pair(char* values){
+  //TODO: This function doesnt really look for pair, it only look for max appreance of 2
   char deck[] = "23456789TJQKA";
-  char this_repeat,pair_value, max_repeat='0';
+  char pair_value;
+  short this_repeat, max_repeat= 0;
   for(short a=0;a<strlen(deck);a++){
     this_repeat = 0;
     for(short b=0;b<strlen(values); a++){
@@ -106,7 +126,7 @@ char pair(char* values){
       pair_value = deck[a];
     }
   }
-  if(max_repeat == 3){
+  if(max_repeat == 2){
     return pair_value;
   }else{
     return '0';
@@ -115,7 +135,8 @@ char pair(char* values){
 
 char three_of_a_kind(char* values){
   char deck[] = "23456789TJQKA";
-  char this_repeat, three_value, max_repeat='0';
+  char three_value;
+  short this_repeat, max_repeat=0;
   for(short a=0;a<strlen(deck);a++){
     this_repeat = 0;
     for(short b=0;b<strlen(values); a++){
@@ -137,7 +158,8 @@ char three_of_a_kind(char* values){
 
 char four_of_a_kind(char* values){
   char deck[] = "23456789TJQKA";
-  char this_repeat, four_value, max_repeat='0';
+  char four_value;
+  short this_repeat, max_repeat=0;
   for(short a=0;a<strlen(deck);a++){
     this_repeat = 0;
     for(short b=0;b<strlen(values); a++){
@@ -157,25 +179,59 @@ char four_of_a_kind(char* values){
   }
 }
 
-int compare_hands(char* one_values, char* one_suits, char* two_values, char* two_suits){
-  int one_max_suits = max_suits(one_suits);
-  int two_max_suits = max_suits(two_suits);
-  printf("%s, %d, %s, %d\n", one_suits, one_max_suits, two_suits, two_max_suits);
+void sort_hand(char* values){
+  char tmp, deck[] = "23456789TJQKA";
+  short index=0;
+  for(short a=0;a<strlen(deck); a++){
+    for(short b=0;b<strlen(values); b++){
+      if(deck[a] == values[b]){
+        tmp = values[index];
+        values[index] = deck[a];
+        values[b] = tmp;
+        index++;
+      }
+    }
+  }
+}
 
+char straight(char* values){
+  char deck[] = "23456789TJQKA";
+  char sorted_values[10] = {0};
+  char result = '0';
+  strcpy(sorted_values, values);
+  sort_hand(sorted_values);
+  for(short a=0, b=0;a<strlen(deck);a++){
+    if(b>0 && b<6 && deck[a] != sorted_values[b]){
+      result = '0'; //remove any value in there and just return zero 
+      break;
+    }else if(deck[a] == sorted_values[b]){
+      result = sorted_values[b];
+      b++;
+      if(b == 5) break;
+    }
+  }
+  return result;
+}
+
+int compare_hands(char* one_values, char* one_suits, char* two_values, char* two_suits){
+  short one_max_suits = max_suits(one_suits);
+  short two_max_suits = max_suits(two_suits);
+  short str8 = greater_card(straight(one_values), straight(two_values));
+  int four = greater_card(four_of_a_kind(one_values),four_of_a_kind(two_values));
+  int three = greater_card(three_of_a_kind(one_values),three_of_a_kind(two_values));
+  int pairr = greater_card(pair(one_values),pair(two_values));
   return 1;
 }
 
-int find_winner( char * str){
+int find_winner(char * str){
   char one_values[10] ={0};
   char two_values[10] ={0};
   char one_suits[10] ={0};
   char two_suits[10] ={0};
   get_values_suits(str, one_values, one_suits, two_values, two_suits);
-//  printf("one: values %s, suits %s \n",one_values, one_suits);
-//  printf("two: values %s, suits %s \n",two_values, two_suits);
   if(compare_hands(one_values,one_suits, two_values, two_suits)==1){
     return 1;
-  }else{
+  }else{  //or else 2 is returned from the function
     return 2;
   }
 }
