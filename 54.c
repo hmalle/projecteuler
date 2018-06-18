@@ -48,7 +48,7 @@ void get_values_suits(char* str,char* one_values, char* one_suits,char* two_valu
   //separates out the player cards and assign card values and suits
   const char delim[2] = " ";
   char* token=strtok(str, delim);
-  for(short a=0; token!=NULL; a++){
+  for(int a=0; token!=NULL; a++){
     if(a<5){
       strncat(one_values, &token[0], 1);
       strncat(one_suits, &token[1], 1);
@@ -60,30 +60,66 @@ void get_values_suits(char* str,char* one_values, char* one_suits,char* two_valu
   }
 }
 
-short max_suits(char* suits){
-  //helper function get the max number of suits
-  int c=0,d=0,h=0,s=0;
-  for(short a=0; a<strlen(suits);a++){
-    if(suits[a]=='C') c++;
-    if(suits[a]=='D') d++;
-    if(suits[a]=='H') h++;
-    if(suits[a]=='S') s++;
+void reverse_values(char * str){
+  char c;
+  int len = strlen(str);
+  for(int a=0; a<len; a++){
+    c = str[a];
+    str[a] = str[len-1];
+    str[len-1] = c; 
   }
-  //TODO: There has to be an easier way
-  if(c>=d && c>=h && c>=s) return c;
-  if(d>=c && d>=h && d>=s) return d;
-  if(h>=c && h>=d && h>=s) return h;
-  if(s>=c && s>=d && s>=h) return s;
-  
-  return 0;
 }
 
-short greater_card(char one, char two){
+void sort_hand(char* values){
+  //sorting the hand makes it easy to find straights
+  char tmp, deck[] = "23456789TJQKA";
+  int index=0;
+  for(int a=0;a<strlen(deck); a++){
+    for(int b=0;b<strlen(values); b++){
+      if(deck[a] == values[b]){
+        tmp = values[index];
+        values[index] = deck[a];
+        values[b] = tmp;
+        index++;
+      }
+    }
+  }
+}
+
+int high_value(char * values){
+  char deck[] = "23456789TJQKA";
+  int result = 0;
+  int deck_len = strlen(deck);
+  int values_len = strlen(values);
+  for(int a=deck_len-1; a>=0; a--){
+    if(deck[a] == values[values_len-1]){
+      result = a;
+      break;
+    }
+  }
+  return result;
+}
+
+int flush(char* suits){
+  //helper function get the max number of suits
+  int c=0,d=0,h=0,s=0;
+  for(int a=0; a<strlen(suits);a++){
+    if(suits[a]=='C') c++;
+    else if(suits[a]=='D') d++;
+    else if(suits[a]=='H') h++;
+    else s++ ;//(suits[a]=='S') s++;
+  }
+  if(c==5||d==5 || h==5||s==5){
+    return 470; 
+  }else return 0;
+}
+
+int greater_card(char one, char two){
   char deck[] = "23456789TJQKA";
   if(one == '0' && two =='0') return 0;
   else if(one != '0' && two =='0') return 1;
   else if(one == '0' && two !='0') return -1;
-  for(short a=strlen(deck)-1;a>=0;a--){
+  for(int a=strlen(deck)-1;a>=0;a--){
     if(deck[a]== one && deck[a]== two){
       return 0;
     }else if(deck[a] == one){
@@ -95,162 +131,95 @@ short greater_card(char one, char two){
   return 0;
 }
 
-
-char high_value(char * values){
+int find_repeats(char* values){
   char deck[] = "23456789TJQKA";
-  char result = deck[0];
-  for(short a=0;a<strlen(deck);a++){
-    for(short b=0;a<strlen(values); a++){
-      if(deck[a] == values[b]){
-        result = values[a];
+  int deck_len = strlen(deck), values_len = strlen(values);
+  int skip=0, repeat=0, sum = 0;
+  for(int a=0; a<deck_len; a++){
+    repeat = 0;
+    for(int b=0; b<=values_len; b++){
+      if( b-skip>0 && deck[a] != values[b]){
+        if(repeat==2){
+          sum += (100+(a*2));
+          skip = b;
+          repeat = 0;
+        }else if(repeat==3){
+          sum += (300+(a*3));
+          skip = b;
+          repeat = 0;
+        }else if(repeat==4){
+          sum += (600+(a*4));
+          return sum;
+        }
+      }else if(deck[a] == values[b]){
+        repeat++;
       }
     }
   }
-  return result;
+  return sum;
 }
 
-char pair(char* values){
-  //TODO: This function doesnt really look for pair, it only look for max appreance of 2
+int straight(char* values){
   char deck[] = "23456789TJQKA";
-  char pair_value;
-  short this_repeat, max_repeat= 0;
-  for(short a=0;a<strlen(deck);a++){
-    this_repeat = 0;
-    for(short b=0;b<strlen(values); a++){
-      if(deck[a] == values[b]){
-        this_repeat++;
-      }
-    }
-    if(max_repeat >= this_repeat ){
-      max_repeat = this_repeat;
-      pair_value = deck[a];
-    }
-  }
-  if(max_repeat == 2){
-    return pair_value;
-  }else{
-    return '0';
-  }
-}
-
-char three_of_a_kind(char* values){
-  char deck[] = "23456789TJQKA";
-  char three_value;
-  short this_repeat, max_repeat=0;
-  for(short a=0;a<strlen(deck);a++){
-    this_repeat = 0;
-    for(short b=0;b<strlen(values); a++){
-      if(deck[a] == values[b]){
-        this_repeat++;
-      }
-    }
-    if(max_repeat >= this_repeat ){
-      max_repeat = this_repeat;
-      three_value = deck[a];
-    }
-  }
-  if(max_repeat == 3){
-    return three_value;
-  }else{
-    return '0';
-  }
-}
-
-char four_of_a_kind(char* values){
-  char deck[] = "23456789TJQKA";
-  char four_value;
-  short this_repeat, max_repeat=0;
-  for(short a=0;a<strlen(deck);a++){
-    this_repeat = 0;
-    for(short b=0;b<strlen(values); a++){
-      if(deck[a] == values[b]){
-        this_repeat++;
-      }
-    }
-    if(max_repeat >= this_repeat ){
-      max_repeat = this_repeat;
-      four_value = deck[a];
-    }
-  }
-  if(max_repeat == 4){
-    return four_value;
-  }else{
-    return '0';
-  }
-}
-
-void sort_hand(char* values){
-  char tmp, deck[] = "23456789TJQKA";
-  short index=0;
-  for(short a=0;a<strlen(deck); a++){
-    for(short b=0;b<strlen(values); b++){
-      if(deck[a] == values[b]){
-        tmp = values[index];
-        values[index] = deck[a];
-        values[b] = tmp;
-        index++;
-      }
-    }
-  }
-}
-
-char straight(char* values){
-  char deck[] = "23456789TJQKA";
-  char sorted_values[10] = {0};
-  char result = '0';
-  strcpy(sorted_values, values);
-  sort_hand(sorted_values);
-  for(short a=0, b=0;a<strlen(deck);a++){
-    if(b>0 && b<6 && deck[a] != sorted_values[b]){
-      result = '0'; //remove any value in there and just return zero 
+  int sum = 0, card_sum = 0;
+  for(int a=0, b=0;a<strlen(deck);a++){
+    if(b>0 && b<6 && deck[a] != values[b]){
       break;
-    }else if(deck[a] == sorted_values[b]){
-      result = sorted_values[b];
+    }else if(deck[a] == values[b]){
       b++;
-      if(b == 5) break;
+      card_sum+=a;
+      if(b == 5){
+        sum += (400+card_sum);
+      }
     }
   }
-  return result;
-}
-
-int compare_hands(char* one_values, char* one_suits, char* two_values, char* two_suits){
-  short one_max_suits = max_suits(one_suits);
-  short two_max_suits = max_suits(two_suits);
-  short str8 = greater_card(straight(one_values), straight(two_values));
-  int four = greater_card(four_of_a_kind(one_values),four_of_a_kind(two_values));
-  int three = greater_card(three_of_a_kind(one_values),three_of_a_kind(two_values));
-  int pairr = greater_card(pair(one_values),pair(two_values));
-  return 1;
+  return sum;
 }
 
 int find_winner(char * str){
-  char one_values[10] ={0};
-  char two_values[10] ={0};
-  char one_suits[10] ={0};
-  char two_suits[10] ={0};
+  char one_values[10] = "";
+  char two_values[10] = "";
+  char one_suits[10] = "";
+  char two_suits[10] = "";
+  int sum_one, sum_two;
   get_values_suits(str, one_values, one_suits, two_values, two_suits);
-  if(compare_hands(one_values,one_suits, two_values, two_suits)==1){
+  sort_hand(one_values); sort_hand(two_values);
+  sort_hand(one_suits); sort_hand(two_suits);
+  sum_one =flush(one_suits)+find_repeats(one_values)+straight(one_values);
+  sum_two =flush(two_suits)+find_repeats(two_values)+straight(two_values);
+  if(sum_one == sum_two){
+    sum_one += high_value(one_values);
+    sum_two += high_value(two_values);
+  }
+  if(sum_one> sum_two){
+    printf("%s,%s - (%d, %d) %s,%s\n",one_values,two_values,sum_one,sum_two, one_suits, two_suits);
     return 1;
-  }else{  //or else 2 is returned from the function
+  }else if(sum_one < sum_two){
     return 2;
+  }else{
+    printf("sum1=sum2 %d %d\n", sum_one, sum_two);
+    return 0;
   }
 }
 
 int main(){
   char pokerfile[20] = "54.txt";
-  short size = 50;
+  int size = 50;
   char s[size]; memset(s, 0, size);
-  short player1 = 0, player2 = 0;
+  int player1 = 0, player2 = 0;
   FILE * fs = fopen(pokerfile, "r");
   if(!fs){ 
     printf("The file %s cannot be opened\n", pokerfile);
     exit(0); 
   }
   while(fgets(s, size, fs)!=NULL){
-    if(find_winner(s)==1){
+    int winner = find_winner(s);
+    if(winner == 1){
       player1++;
-    }else{
+    }else if(winner==2){
       player2++;
+    }else{
+      printf("------------Draw---------------\n");
     }
   }
   printf("Player 1: %d\nPlayer 2: %d\n", player1, player2);
