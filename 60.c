@@ -75,26 +75,27 @@ bool check_primes(int* primes, int size){
   return true;
 }
 
-void check_starting_with(int p){
+void start_checking(int p){
   int size=2, max=5, next_prime;
-  int ns[max];
+  int ns[max], count = 0;
   ns[0] = p;
   ns[1] = get_next_prime(p);
-  while(size<=max){
+  while(count < 2 ){
+    next_prime = get_next_prime(ns[size-1]);
     if( check_primes( (int *)&ns, size)){
-      if(size > 3){
+      if(size > 4){
         print_primes((int*)&ns, size);
+        count++;
       }
-      next_prime = get_next_prime(ns[size-1]);
       ns[size] = next_prime;
       size++;
-    }else if(next_prime=get_next_prime(ns[size-1]) == 0){
+    }else if(next_prime == 0){
       if(size>1){
         next_prime = get_next_prime(ns[size-2]);
         ns[size-2] = next_prime;
         size-=1;
       }
-    } else{
+    }else{
       next_prime = get_next_prime(ns[size-1]);
       ns[size-1] = next_prime;
     }
@@ -102,14 +103,17 @@ void check_starting_with(int p){
 }
 
 int main(int argc, char** argv){
+  /*
   char sp[10] = "";
-  //TODO: Make this work through all of them
-  for(int p=3; p<200; p+=2){
+  for(int p=3; p<100; p+=2){
     if(p%2==0 || p%5==0) continue;
     sprintf(sp, "%d", p);
     if(isprime(sp)){
-      check_starting_with(p);
+      printf("Checking new shit\n");
+      start_checking(p);
     }
   }
+  */
+  start_checking(3);
   return 0;
 }
