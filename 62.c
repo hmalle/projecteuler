@@ -12,39 +12,36 @@
 #include<math.h>
 #include<string.h>
 
-int permutable_cubes(char * cube, int size){
-  char tmp, s_cube[20] = "";
-  int num, count=1;
-  double ans;
-  strcpy(s_cube, cube);
-  for(int a=0; a<size; a++){
-    for(int b=0; b<size; b++){
-      strcpy( s_cube, cube);
-      if(a==b) continue;
-      tmp = s_cube[a];
-      s_cube[a] = s_cube[b];
-      s_cube[b] = tmp;
-      num = atoi(s_cube);
-      ans = pow(num, 0.3333333333333);
-        printf("%s, %f\n", s_cube, ans);
-      if( ceil(ans) == ans ){
-        count++;
-      }
+void swap( char* x, char* y){
+  char tmp;
+  tmp = *x;
+  *x = *y;
+  *y = tmp;
+}
+
+void permute(char * cube, int l, int r){
+  if(l==r){
+    int num = atoi(cube);
+    double ans = pow(num, 0.333333333);
+    if(fabs(round(ans)-ans) <= 0.000005f){
+      printf("%d, %f=%f\n", num, ans, round(ans));
+    }
+  }else{
+    for(int a=l; a<=r; a++){
+      swap((cube+l), (cube+a));
+      permute(cube, l+1, r);
+      swap((cube+l), (cube+a));
     }
   }
-  return count;
 }
 
 int main(void){
-  int count = 0, cube = 0;
+  int cube = 0;
   char s_cube[20] = "";
-  for(int a=5; a<6; a++){
+  for(int a=345; a<346; a++){
     cube = (int)pow(a,3);
     sprintf(s_cube, "%d", cube);
-    count = permutable_cubes(s_cube, strlen(s_cube));
-    if(count > 1){
-      printf("%d^3 -> %f\n", a, pow(a,3));
-    }
+    permute(s_cube, 0, strlen(s_cube)-1);
   }
   return 0;
 }
