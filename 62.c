@@ -7,41 +7,62 @@
  * Find the smallest cube for which exactly five permutations of its digits are cube.
  */
 
-#include<stdlib.h>
 #include<stdio.h>
+#include<stdlib.h>
 #include<math.h>
 #include<string.h>
+#include<stdbool.h>
 
 void swap( char* x, char* y){
-  char tmp;
-  tmp = *x;
+  char tmp = *x;
   *x = *y;
   *y = tmp;
 }
 
-void permute(char * cube, int l, int r){
-  if(l==r){
-    int num = atoi(cube);
-    double ans = pow(num, 0.333333333);
-    if(fabs(round(ans)-ans) <= 0.000005f){
-      printf("%d, %f=%f\n", num, ans, round(ans));
-    }
-  }else{
-    for(int a=l; a<=r; a++){
-      swap((cube+l), (cube+a));
-      permute(cube, l+1, r);
-      swap((cube+l), (cube+a));
+void sort(char * str, int size){
+  for(int a=0; a<size; a++){
+    for(int b=a+1; b<size; b++){
+      if(str[a] > str[b]){
+        swap( (str+a), (str+b));
+      }
     }
   }
 }
 
-int main(void){
-  int cube = 0;
-  char s_cube[20] = "";
-  for(int a=345; a<346; a++){
-    cube = (int)pow(a,3);
-    sprintf(s_cube, "%d", cube);
-    permute(s_cube, 0, strlen(s_cube)-1);
+bool compare(int a, int b){
+  long long a3 = pow(a,3);
+  long long b3 = pow(b,3);
+  char s_a[30] = "";
+  char s_b[30] = "";
+  sprintf(s_a, "%lld", a3);
+  sprintf(s_b, "%lld", b3);
+  sort(s_a, strlen(s_a));
+  sort(s_b, strlen(s_b));
+  if(strcmp(s_a, s_b) == 0){
+    return true;
+  }
+  return false;
+}
+
+int main(){
+  for(int a=5; a<10000; a++){
+    for(int b=a+1; b<10000; b++){
+      if(compare(a,b)){
+        for(int c=b+1; c<10000; c++){
+          if(compare(b,c)){
+            for(int d=c+1; d<10000; d++){
+              if(compare(c,d)){
+                printf("%d, %d, %d, %d\n", a,b,c, d);
+                for(int e=d+1; e<10000; e++){
+                  if(compare(d,e))
+                    printf("%d, %d , %d, %d, %d\n", a,b,c,d,e);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   return 0;
 }
