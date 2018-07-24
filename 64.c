@@ -12,3 +12,34 @@
 
 #include<stdlib.h>
 #include<stdio.h>
+#include<math.h>
+
+int * coefficients( int n ){
+  int a=n, b=sqrt(n), c=1; //numerator
+  int x=1, y=0;   //denominator
+  int coeff;
+  //c(a+b)/(x+y);
+  for(int index=0; index<2; index++){
+    printf("a%d: %d(%d+%d)/(%d-%d)\n", index, c,a,b,x,y);
+    //Reciprocate
+    x = a; y = b;
+    //Rationalize the denominator
+    x = a; b = y;
+    x = x-pow(y,2); y = 0;
+    printf("a%d: %d(%d-%d)/(%d-%d)\n", index, c,a,b,x,y);
+    if(a-y >1){
+      
+    }else{
+
+    }
+    printf("\n\n");
+  }
+  return 0;
+}
+
+int main(){
+  for(int a=23; a<24; a++){
+    coefficients(a);
+  }
+  return 0;
+}
