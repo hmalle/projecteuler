@@ -11,22 +11,22 @@
 
 
 def pentagonal( num):
-	if ((1 + (1+24*num)**0.5 )/6.0)%1.0 == 0.0:
-		return True
-	return False
+  if ((1 + (1+24*num)**0.5 )/6.0)%1.0 == 0.0:
+    return True
+  return False
 
 def main():
-	i = 2.0;
-	notfound = True
-	while notfound :
-		p1 = ( 3*i**2-i ) /2.0
-		for j in range(1,int(i)) :
-			p2 = (3*j**2-j)/2.0
-			j+=1
-			if pentagonal(p1-p2) and pentagonal(p2+p1):
-				notfound = False
-				print i," ",j," ",p1," ",p2," ",p1-p2
-		i+=1.0
+  i = 2.0;
+  notfound = True
+  while notfound :
+    p1 = ( 3*i**2-i ) /2.0
+    for j in range(1,int(i)) :
+      p2 = (3*j**2-j)/2.0
+      j+=1
+      if pentagonal(p1-p2) and pentagonal(p2+p1):
+        notfound = False
+        print i," ",j," ",p1," ",p2," ",p1-p2
+    i+=1.0
 
 if __name__ == '__main__': 
-	main()
+  main()
