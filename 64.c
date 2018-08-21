@@ -13,33 +13,69 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
+#include<stdbool.h>
+#include<string.h>
 
-int * coefficients( int n ){
-  int a=n, b=sqrt(n), c=1; //numerator
-  int x=1, y=0;   //denominator
-  int coeff;
-  //c(a+b)/(x+y);
-  for(int index=0; index<2; index++){
-    printf("a%d: %d(%d+%d)/(%d-%d)\n", index, c,a,b,x,y);
-    //Reciprocate
-    x = a; y = b;
-    //Rationalize the denominator
-    x = a; b = y;
-    x = x-pow(y,2); y = 0;
-    printf("a%d: %d(%d-%d)/(%d-%d)\n", index, c,a,b,x,y);
-    if(a-y >1){
-      
-    }else{
-
+int get_periodicity( int* coeffs, int size){
+  int period = 0;
+  bool found_period = false;
+  for(int a=0; a<size; a++){
+    for(int b=a+1; b<size; b++){
+      if(coeffs[a] == coeffs[b]){
+        found_period = true;
+        for(int offset=1; b+offset< size; offset++){
+          if(coeffs[a+offset] != coeffs[b+offset]){
+            found_period = false;
+            break;
+          }
+        }
+        if(found_period){
+          period = b-a;
+          goto end; //Jump off out of this loop
+        }
+      }
     }
-    printf("\n\n");
   }
-  return 0;
+  end:
+  return period;
+}
+
+int periodicity( int n ){
+  printf("%4d= ", n);
+  if(sqrt(n)== floor(sqrt(n))){
+    printf("0\n");
+    return 0;
+  }
+  int size = 500;
+  int coeffs[size];
+  memset(coeffs, 0, size);
+  int period = 0;
+  int m=0;
+  int d=1;
+  int a=floor(sqrt(n));
+  for(int index=0;index<size;index++){
+    m = d*a - m;
+    d = (n - pow(m,2))/d;
+    a = floor((sqrt(n)+m)/d);
+    //printf("%d,",a);
+    coeffs[index] = a;
+  }
+  period = get_periodicity( &coeffs[0], size);
+  printf(": Period :%d\n",period);
+  return period;
 }
 
 int main(){
-  for(int a=23; a<24; a++){
-    coefficients(a);
+  int N=10000;
+  int odd_period = 0;
+  int period=0;
+  for(int n=2; n<=N; n++){
+    period = periodicity(n);
+    if(period%2== 1){
+      odd_period++;
+    }
   }
+  printf("Odd Period(N<%d) = %d\n", N, odd_period);
   return 0;
 }
+
