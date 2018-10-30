@@ -9,23 +9,66 @@ Given that the three characters are always asked for in order, analyse the file 
 #include<string.h>
 #include<stdlib.h>
 
-int main(int argc, char ** argv){
-  if(argc < 2){
+int lines(FILE* fptr){
+  //Returns the lines count in the file
+  int lines=0;
+  char ch;
+  while((ch=fgetc(fptr))!=EOF){
+    if(ch=='\n'){
+      lines++;
+    }
+  }
+  rewind(fptr);
+  return lines;
+}
+
+void sort(char **keys, int size){
+
+}
+
+void print_keys(char ** keys, int size){
+  for(int a=0;a<size; a++){
+    printf("%s\n", *(keys)[size]);
+  }
+}
+
+int main(int argc, char **argv){
+  if(argc < 2){ //Check the number of arguments
     printf("Please supply the text file as a command line argument\n");
     exit(0);
   }
   FILE *fptr;
   fptr=fopen(argv[1],"r");
-  if(fptr==NULL){
+  if(fptr==NULL){ //Check if the file was opened
     printf("Cannot open the file %s\nExiting \n", argv[1]);
     exit(0);
   }
 
-  //Plan:
-  //Read 2 characters from the keylog.txt to see if they repeat
-  //If they do, append the whole letter to the other repeat
-  //If there is a necessary insertion needed, insert
-  //TODO: But how does I guarantee insertion is in the right spot??
-  //
+  int size=lines(fptr);
+  int buff_index=0;
+  int buff_size=4;
+  int keys_index=0;
+  char buff[buff_size];
+  char c;
+  char keys[size][buff_size];
+  memset(buff,0,buff_size);
+  while((c=fgetc(fptr))!=EOF){
+    if(c!=EOF && c!='\n'){
+      buff[buff_index]=c;
+      buff_index++;
+    }else{
+      buff[buff_index] = '\0';
+      strncpy(keys[keys_index], buff,3);
+      printf("copying one key: %s\n",buff);
+      memset(buff,0,buff_size);
+      buff_index=0;
+      keys_index++;
+    }
+  }
+
+  for(int a=0;a<size;a++){
+    printf("-> %s\n", keys[a]);
+  }
+  fclose(fptr);
   return 0;
 }
